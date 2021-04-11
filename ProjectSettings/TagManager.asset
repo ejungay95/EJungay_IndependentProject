@@ -10,6 +10,9 @@ TagManager:
   - Road
   - Building
   - Props
+  - ScoreManager
+  - OverallSatisfaction
+  - SpawnManager
   layers:
   - Default
   - TransparentFX

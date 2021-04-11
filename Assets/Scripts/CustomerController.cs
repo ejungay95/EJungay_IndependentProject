@@ -7,16 +7,25 @@ public class CustomerController : MonoBehaviour
 {
   private Animator anim;
   private CustomerWaypoint waypoint;
+  private ScoreManager score;
   private float maxSatisfaction = 100f;
-  private float decreaseAmount = 5f; // How fast satisfaction drains
+  private float decreaseAmount = 2f; // How fast satisfaction drains
   private float minDistance = 10f;
   private float currentSatisfaction;
+  private float satisfactionMultiplier;
   private bool isFoodDelivered; // Flag used to stop decreasing satisfaction
   private Color orange = new Color(1f, .64f, 0f);
-
+  private BoxCollider boxCollider;
+  private AudioSource audioSource;
+  private GameObject scoreManager;
   private GameObject player;
-  public Image satisfactionBar;
+  private GameObject satisfaction;
 
+  public Image satisfactionBar;
+  public Slider overallSatisfactionSlider;
+  public AudioClip nomClip;
+  public AudioClip annoyedClip;
+  public ParticleSystem crumbParticle;
 
   // Start is called before the first frame update
   void Start()
@@ -25,16 +34,30 @@ public class CustomerController : MonoBehaviour
     player = GameObject.FindGameObjectWithTag("Player");
     anim = GetComponent<Animator>();
     waypoint = GetComponent<CustomerWaypoint>();
+    boxCollider = GetComponent<BoxCollider>();
+    scoreManager = GameObject.FindGameObjectWithTag("ScoreManager");
+    score = scoreManager.GetComponent<ScoreManager>();
+    satisfaction = GameObject.FindGameObjectWithTag("OverallSatisfaction");
+    overallSatisfactionSlider = satisfaction.GetComponent<Slider>();
+    audioSource = GetComponent<AudioSource>();
     currentSatisfaction = maxSatisfaction;
   }
 
   // Update is called once per frame
   void Update()
   {
+    float temp = overallSatisfactionSlider.value;
+
     SatisfactionDecrease();
     ChangeSatisfactionBarColor(satisfactionBar);
+
     if (currentSatisfaction < 0)
-    {
+    {   
+      // Subtract from overall satisfaction
+      currentSatisfaction = 0;
+      audioSource.PlayOneShot(annoyedClip);
+      temp -= .05f;
+      overallSatisfactionSlider.value = temp;
       anim.SetBool("CustomerPatience", true);
       Destroy(gameObject, anim.GetCurrentAnimatorStateInfo(0).length);
     }
@@ -49,8 +72,13 @@ public class CustomerController : MonoBehaviour
     {
       isFoodDelivered = true;
 
+      // Do stuff when food is delivered to the customer
+      audioSource.PlayOneShot(nomClip);
+      crumbParticle.Play();
+      boxCollider.enabled = false;
       Destroy(other.gameObject);
       anim.SetBool("isFoodDelivered", true);
+      CalculateScore();
       Destroy(gameObject, anim.GetCurrentAnimatorStateInfo(0).length);
     }
   }
@@ -58,21 +86,26 @@ public class CustomerController : MonoBehaviour
   public void ChangeSatisfactionBarColor(Image img)
   {
     // Change the color of the fill bar depending on current amount
+    // Also works as determining score multiplier
     if(currentSatisfaction >= 75f)
     {
       img.color = Color.green;
+      satisfactionMultiplier = 1f;
     }
     else if(currentSatisfaction < 75f && currentSatisfaction >= 50f)
     {
       img.color = Color.yellow;
+      satisfactionMultiplier = .75f;
     }
     else if (currentSatisfaction < 50f && currentSatisfaction >= 25f)
     {
       img.color = orange;
+      satisfactionMultiplier = .5f;
     } 
     else if(currentSatisfaction < 25f)
     {
       img.color = Color.red;
+      satisfactionMultiplier = .25f;
     }
   }
 
@@ -87,7 +120,7 @@ public class CustomerController : MonoBehaviour
     // Decrease customers satisfaction
     if (!isFoodDelivered && currentSatisfaction > 0)
     {
-      currentSatisfaction -= decreaseAmount * Time.deltaTime;
+      currentSatisfaction -= (decreaseAmount + score.GetDifficulty() - 1) * Time.deltaTime;
       satisfactionBar.fillAmount = currentSatisfaction / maxSatisfaction;
     }
   }
@@ -104,7 +137,17 @@ public class CustomerController : MonoBehaviour
 
   public float GetCurrentSatisfaction()
   {
-    // Might use for later when calculating score
+    // Used for waypoint
     return currentSatisfaction;
+  }
+
+  private void CalculateScore()
+  {
+    score.AddToScore(Mathf.RoundToInt(currentSatisfaction * satisfactionMultiplier * score.GetDifficulty()));
+  }
+
+  public bool GetIsFoodDelivered()
+  {
+    return isFoodDelivered;
   }
 }

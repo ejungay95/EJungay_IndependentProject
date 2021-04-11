@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour 
 {
@@ -12,8 +13,13 @@ public class PlayerController : MonoBehaviour
   public GameObject newCenterOfMass;
   public Transform projectileSpawn;
   public GameObject projectilePrefab;
+  public AudioClip cannonShotClip;
+  public AudioClip emptyShotClip;
   public int foodAmmo = 10;
+  public ParticleSystem smoke;
+  public Text ammoCountText;
 
+  private AudioSource audioSource;
   private float horizontalInput;
   private float verticalInput;
   
@@ -24,6 +30,8 @@ public class PlayerController : MonoBehaviour
   {
     // Make center of mass lower to try and prevent flipping the car over
     GetComponent<Rigidbody>().centerOfMass = newCenterOfMass.transform.localPosition;
+    audioSource = GetComponent<AudioSource>();
+    ammoCountText.text = "Ammo: " + foodAmmo.ToString() + "/10";
   }
 
   // Update is called once per frame
@@ -36,12 +44,19 @@ public class PlayerController : MonoBehaviour
     verticalInput = Input.GetAxis("Vertical");
 
     // Note: unmapped "Jump" to utilize use for spacebar
-    if(Input.GetButtonDown("Fire1"))
+    if(Input.GetButtonDown("Fire1") && foodAmmo > 0)
     {
+      audioSource.PlayOneShot(cannonShotClip);
       Instantiate(projectilePrefab, projectileSpawn.position, projectileSpawn.transform.rotation);
+      smoke.Play();
       if(foodAmmo > 0) {
         foodAmmo -= 1;
       }     
+    }
+
+    if(Input.GetButtonDown("Fire1") && foodAmmo == 0)
+    {
+      audioSource.PlayOneShot(emptyShotClip);
     }
 
     // Cannon rotation using left and right arrow keys
@@ -56,6 +71,8 @@ public class PlayerController : MonoBehaviour
 
     // Move and rotate the player
     transform.Translate(Vector3.forward * playerSpeed * Time.deltaTime * verticalInput);
-    transform.Rotate(Vector3.up * turnSpeed * Time.deltaTime * horizontalInput);  
+    transform.Rotate(Vector3.up * turnSpeed * Time.deltaTime * horizontalInput);
+
+    ammoCountText.text = "Ammo: " + foodAmmo.ToString() + "/10";
   }
 }

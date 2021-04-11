@@ -6,11 +6,15 @@ public class RefillAmmo : MonoBehaviour
 {
   private const int MAX_FOOD_AMMO = 10;
   private PlayerController playerController;
+  private AudioSource audioSource;
+
+  public AudioClip refillClip;
 
   // Start is called before the first frame update
   void Start()
   {
     playerController = gameObject.GetComponent<PlayerController>();
+    audioSource = GetComponent<AudioSource>();
   }
 
   private void OnTriggerEnter(Collider other)
@@ -21,6 +25,7 @@ public class RefillAmmo : MonoBehaviour
       if(playerController.foodAmmo != MAX_FOOD_AMMO)
       {
         playerController.foodAmmo = MAX_FOOD_AMMO;
+        audioSource.PlayOneShot(refillClip);
       }
     }
   }

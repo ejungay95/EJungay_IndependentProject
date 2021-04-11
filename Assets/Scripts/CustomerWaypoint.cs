@@ -47,9 +47,12 @@ public class CustomerWaypoint : MonoBehaviour
       tempText.text = Mathf.Round(Vector3.Distance(player.position, transform.position)).ToString() + "m";
       customerController.ChangeSatisfactionBarColor(tempImage);
 
-      if(customerController.GetCurrentSatisfaction() <= 0) {
+      // Hide the waypoint when customer is going to despawn
+      if(customerController.GetCurrentSatisfaction() <= 0 || customerController.GetIsFoodDelivered())
+      {
         temp.gameObject.SetActive(false);
       }
+
     }
   }
 
@@ -113,17 +116,5 @@ public class CustomerWaypoint : MonoBehaviour
       return temp.gameObject;
     }
     return null;
-  }
-
-  public float SubtractFromSatisfactionRating()
-  {
-    // Use for later
-    return 0;
-  }
-
-  public float PointsToAddBasedOnRemainingSatisfaction()
-  {
-    // Use for later
-    return 0;
   }
 }
