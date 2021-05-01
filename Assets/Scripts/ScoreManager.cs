@@ -6,12 +6,12 @@ using UnityEngine.UI;
 public class ScoreManager : MonoBehaviour
 {
   public int score;
+  public Text scoreText;
+
   private int scoreThreshold = 250;
   private int thresholdIncrease = 250;
   private int difficultyCounter = 1;
-  public Text scoreText;
   
-
   // Start is called before the first frame update
   void Start()
   {
@@ -24,6 +24,7 @@ public class ScoreManager : MonoBehaviour
   {
     scoreText.text = "Score: " + score.ToString();
 
+    // Increases difficulty when score surpasses the threshold
     if(score >= scoreThreshold)
     {
       scoreThreshold += thresholdIncrease * difficultyCounter;

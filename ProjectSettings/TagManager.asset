@@ -13,6 +13,9 @@ TagManager:
   - ScoreManager
   - OverallSatisfaction
   - SpawnManager
+  - PowerUp
+  - Button
+  - Text
   layers:
   - Default
   - TransparentFX

@@ -20,18 +20,21 @@ public class CustomerController : MonoBehaviour
   private GameObject scoreManager;
   private GameObject player;
   private GameObject satisfaction;
+  private PlayerController playerController;
 
   public Image satisfactionBar;
   public Slider overallSatisfactionSlider;
   public AudioClip nomClip;
   public AudioClip annoyedClip;
   public ParticleSystem crumbParticle;
+  
 
   // Start is called before the first frame update
   void Start()
   {
     // Initializing stuff
     player = GameObject.FindGameObjectWithTag("Player");
+    playerController = player.GetComponent<PlayerController>();
     anim = GetComponent<Animator>();
     waypoint = GetComponent<CustomerWaypoint>();
     boxCollider = GetComponent<BoxCollider>();
@@ -56,7 +59,7 @@ public class CustomerController : MonoBehaviour
       // Subtract from overall satisfaction
       currentSatisfaction = 0;
       audioSource.PlayOneShot(annoyedClip);
-      temp -= .05f;
+      temp -= (.05f * score.GetDifficulty());
       overallSatisfactionSlider.value = temp;
       anim.SetBool("CustomerPatience", true);
       Destroy(gameObject, anim.GetCurrentAnimatorStateInfo(0).length);
@@ -118,10 +121,11 @@ public class CustomerController : MonoBehaviour
   private void SatisfactionDecrease()
   {
     // Decrease customers satisfaction
-    if (!isFoodDelivered && currentSatisfaction > 0)
-    {
-      currentSatisfaction -= (decreaseAmount + score.GetDifficulty() - 1) * Time.deltaTime;
-      satisfactionBar.fillAmount = currentSatisfaction / maxSatisfaction;
+    if(!playerController.HasPowerUp()) {
+      if (!isFoodDelivered && currentSatisfaction > 0) {
+        currentSatisfaction -= (decreaseAmount + score.GetDifficulty() - 1) * Time.deltaTime;
+        satisfactionBar.fillAmount = currentSatisfaction / maxSatisfaction;
+      }
     }
   }
 

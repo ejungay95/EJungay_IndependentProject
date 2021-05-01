@@ -9,10 +9,15 @@ public class SpawnManager : MonoBehaviour
   private float startTime = 1.5f;
   private float minRepeatTime = 8f;
   private float maxRepeatTime = 16f;
+  private float powerUpSpawnTime = 10f;
   private float randRepeatTime;
   private bool decreasedSpawnTime = false; // Flag to only decrease spawn time only once a round
+  private int maxPowerUps = 3;
+  private int count = 0;
 
   public GameObject[] customerPrefabs;
+  public GameObject powerUpPrefab;
+  public Transform[] powerUpSpawnPoints;
   public Transform[] spawnPoints;
   public ScoreManager scoreManager;
 
@@ -21,6 +26,7 @@ public class SpawnManager : MonoBehaviour
   {
     randRepeatTime = Random.Range(minRepeatTime, maxRepeatTime);
     InvokeRepeating("SpawnCustomers", startTime, randRepeatTime);
+    InvokeRepeating("SpawnPowerUps", powerUpSpawnTime, powerUpSpawnTime);
   }
 
   // Update is called once per frame
@@ -55,13 +61,30 @@ public class SpawnManager : MonoBehaviour
       maxRepeatTime -= 1;
       randRepeatTime = Random.Range(minRepeatTime, maxRepeatTime);
       decreasedSpawnTime = true;
-      Debug.Log("even" + minRepeatTime + " " + maxRepeatTime);
     }
     if(scoreManager.GetDifficulty() % 2 != 0)
     {
       decreasedSpawnTime = false;
-      Debug.Log("odd" +  minRepeatTime + " " + maxRepeatTime);
     }
+  }
 
+  private void SpawnPowerUps()
+  {
+    // Only 3 Power ups will spawn at on of 5 set locations
+    int randSpawnIndex = Random.Range(0, powerUpSpawnPoints.Length);
+    Vector3 randPos = new Vector3(powerUpSpawnPoints[randSpawnIndex].position.x,
+                                  powerUpSpawnPoints[randSpawnIndex].position.y,
+                                  powerUpSpawnPoints[randSpawnIndex].position.z);
+
+    if (count < maxPowerUps)
+    {
+      Instantiate(powerUpPrefab, randPos, powerUpPrefab.transform.rotation);
+      count++;
+    }
+  }
+
+  public void SubtractPowerUpCount()
+  {
+    count--;
   }
 }

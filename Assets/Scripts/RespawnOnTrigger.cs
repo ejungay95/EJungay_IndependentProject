@@ -6,18 +6,6 @@ public class RespawnOnTrigger : MonoBehaviour
 {
   public Transform respawnPoint;
 
-  // Start is called before the first frame update
-  void Start()
-  {
-        
-  }
-
-  // Update is called once per frame
-  void Update()
-  {
-        
-  }
-
   private void OnTriggerEnter(Collider other)
   {
     // In the case when truck clips under the play area

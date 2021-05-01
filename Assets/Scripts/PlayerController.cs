@@ -15,15 +15,19 @@ public class PlayerController : MonoBehaviour
   public GameObject projectilePrefab;
   public AudioClip cannonShotClip;
   public AudioClip emptyShotClip;
+  public AudioClip powerUpClip;
+  public AudioClip tickTockClip;
   public int foodAmmo = 10;
   public ParticleSystem smoke;
   public Text ammoCountText;
-
+  public SpawnManager spawnManager;
+  
   private AudioSource audioSource;
   private float horizontalInput;
   private float verticalInput;
-  
+  private bool hasPowerUp;
   private int cannonRotateDirection = 1;
+  private ParticleSystem temp;
 
   // Start is called before the first frame update
   void Start()
@@ -44,17 +48,20 @@ public class PlayerController : MonoBehaviour
     verticalInput = Input.GetAxis("Vertical");
 
     // Note: unmapped "Jump" to utilize use for spacebar
+    // Fire the projectile
     if(Input.GetButtonDown("Fire1") && foodAmmo > 0)
     {
       audioSource.PlayOneShot(cannonShotClip);
       Instantiate(projectilePrefab, projectileSpawn.position, projectileSpawn.transform.rotation);
-      smoke.Play();
+      temp = Instantiate(smoke, projectileSpawn.position, projectileSpawn.transform.rotation);
+      temp.Play();
+      
       if(foodAmmo > 0) {
         foodAmmo -= 1;
       }     
     }
 
-    if(Input.GetButtonDown("Fire1") && foodAmmo == 0)
+    if (Input.GetButtonDown("Fire1") && foodAmmo == 0)
     {
       audioSource.PlayOneShot(emptyShotClip);
     }
@@ -74,5 +81,30 @@ public class PlayerController : MonoBehaviour
     transform.Rotate(Vector3.up * turnSpeed * Time.deltaTime * horizontalInput);
 
     ammoCountText.text = "Ammo: " + foodAmmo.ToString() + "/10";
+  }
+
+  private void OnTriggerEnter(Collider other) {
+    if (other.CompareTag("PowerUp"))
+    {
+      // Enable the power up effect and its effects
+      // Freeze time for 7 seconds because the clip is 7 seconds long
+      audioSource.PlayOneShot(powerUpClip);
+      Destroy(other.gameObject);
+      spawnManager.SubtractPowerUpCount();
+      audioSource.PlayOneShot(tickTockClip);
+      StartCoroutine("PowerUpTimer");
+    } 
+  }
+
+  public bool HasPowerUp() {
+    // Use to stop/start satisfaction decrease
+    return hasPowerUp;
+  }
+
+  IEnumerator PowerUpTimer() {
+    // Make power up last 7 seconds
+    hasPowerUp = true;
+    yield return new WaitForSeconds(7);
+    hasPowerUp = false;
   }
 }
