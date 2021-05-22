@@ -5,7 +5,9 @@ using UnityEngine.UI;
 
 public class CustomerWaypoint : MonoBehaviour
 {
-  private float minDistance = 5f;
+  private const float MAX_IMG_SIZE = 200f;
+  private const float MIN_IMG_SIZE = 75f;
+  private float minDistance = 20f;
   private float imageSize = 50f;
   private Vector2 screenMax = new Vector2(Screen.width, Screen.height);
   private Vector2 screenMin = Vector2.zero;
@@ -70,9 +72,10 @@ public class CustomerWaypoint : MonoBehaviour
       temp.gameObject.SetActive(true);
 
       // Change size of the waypoint, bigger when farther, smaller when closer
-      tempImage.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, distance + imageSize);
-      tempImage.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, distance + imageSize);
-      //tempImage.rectTransform.sizeDelta = new Vector2(distance + imageSize, distance + imageSize);
+      if(distance + imageSize > MIN_IMG_SIZE && distance + imageSize < MAX_IMG_SIZE) {
+        tempImage.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, distance + imageSize);
+        tempImage.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, distance + imageSize);
+      }    
     }
   }
 

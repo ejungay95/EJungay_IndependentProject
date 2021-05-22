@@ -7,7 +7,7 @@ public class CustomerController : MonoBehaviour
 {
   private Animator anim;
   private CustomerWaypoint waypoint;
-  private ScoreManager score;
+  private GameManager score;
   private float maxSatisfaction = 100f;
   private float decreaseAmount = 2f; // How fast satisfaction drains
   private float minDistance = 10f;
@@ -17,17 +17,16 @@ public class CustomerController : MonoBehaviour
   private Color orange = new Color(1f, .64f, 0f);
   private BoxCollider boxCollider;
   private AudioSource audioSource;
-  private GameObject scoreManager;
   private GameObject player;
   private GameObject satisfaction;
   private PlayerController playerController;
 
+  public SpriteRenderer minimapIcon;
   public Image satisfactionBar;
   public Slider overallSatisfactionSlider;
   public AudioClip nomClip;
   public AudioClip annoyedClip;
   public ParticleSystem crumbParticle;
-  
 
   // Start is called before the first frame update
   void Start()
@@ -38,8 +37,7 @@ public class CustomerController : MonoBehaviour
     anim = GetComponent<Animator>();
     waypoint = GetComponent<CustomerWaypoint>();
     boxCollider = GetComponent<BoxCollider>();
-    scoreManager = GameObject.FindGameObjectWithTag("ScoreManager");
-    score = scoreManager.GetComponent<ScoreManager>();
+    score = GameObject.Find("GameManager").GetComponent<GameManager>();
     satisfaction = GameObject.FindGameObjectWithTag("OverallSatisfaction");
     overallSatisfactionSlider = satisfaction.GetComponent<Slider>();
     audioSource = GetComponent<AudioSource>();
@@ -64,7 +62,6 @@ public class CustomerController : MonoBehaviour
       anim.SetBool("CustomerPatience", true);
       Destroy(gameObject, anim.GetCurrentAnimatorStateInfo(0).length);
     }
-
     LookAtPlayer();
   }
 
@@ -76,6 +73,7 @@ public class CustomerController : MonoBehaviour
       isFoodDelivered = true;
 
       // Do stuff when food is delivered to the customer
+      minimapIcon.GetComponent<SpriteRenderer>().enabled = false;
       audioSource.PlayOneShot(nomClip);
       crumbParticle.Play();
       boxCollider.enabled = false;
@@ -121,7 +119,7 @@ public class CustomerController : MonoBehaviour
   private void SatisfactionDecrease()
   {
     // Decrease customers satisfaction
-    if(!playerController.HasPowerUp()) {
+    if(!playerController.HasPowerUp() && !score.GetIfGamePaused()) {
       if (!isFoodDelivered && currentSatisfaction > 0) {
         currentSatisfaction -= (decreaseAmount + score.GetDifficulty() - 1) * Time.deltaTime;
         satisfactionBar.fillAmount = currentSatisfaction / maxSatisfaction;

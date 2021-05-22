@@ -13,14 +13,14 @@ public class RefillAmmo : MonoBehaviour
   // Start is called before the first frame update
   void Start()
   {
-    playerController = gameObject.GetComponent<PlayerController>();
+    playerController = GameObject.Find("Player").GetComponent<PlayerController>();
     audioSource = GetComponent<AudioSource>();
   }
 
   private void OnTriggerEnter(Collider other)
   {
     // Refill ammo when player drives over the zone
-    if(other.tag == "RefillZone")
+    if(other.tag == "Player")
     {
       if(playerController.foodAmmo != MAX_FOOD_AMMO)
       {

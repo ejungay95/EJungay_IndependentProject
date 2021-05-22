@@ -4,18 +4,25 @@ using UnityEngine;
 
 public class FollowPlayer : MonoBehaviour
 {
-  [SerializeField] Vector3 offset;
+  public Vector3 offset;
+  private Vector3 boostOffset = new Vector3(0f, 5f, 0f);
+
+  private PlayerController playerController;
 
   public GameObject player;
   // Start is called before the first frame update
   void Start()
   {
-    
+    playerController = GameObject.Find("Player").GetComponent<PlayerController>();
   }
 
   // Update is called once per frame
   void LateUpdate()
   {
-    transform.position = player.transform.position + offset;
+    if(playerController.IsBoosting()) {
+      transform.position = player.transform.position + offset + boostOffset;
+    } else {     
+      transform.position = transform.position = player.transform.position + offset; ;
+    }  
   }
 }

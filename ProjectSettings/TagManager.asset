@@ -16,6 +16,8 @@ TagManager:
   - PowerUp
   - Button
   - Text
+  - GameOverUI
+  - Car
   layers:
   - Default
   - TransparentFX
@@ -27,8 +29,8 @@ TagManager:
   - 
   - PostProcessing
   - Ground
-  - 
-  - 
+  - Minimap
+  - Prop
   - 
   - 
   - 
